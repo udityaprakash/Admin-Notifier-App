@@ -41,7 +41,11 @@ class _LoginScreenState extends State<LoginScreen> {
     log('Logging in with phone: $phone and mpin: ${mpinController.text}');
     var res = await ApiService().post(
       '/login',
-      body: {'phoneNumber': phone, 'mPin': mpinController.text.trim(),  'deviceId':'default'},
+      body: {
+        'phoneNumber': phone,
+        'mPin': mpinController.text.trim(),
+        'deviceId': 'default',
+      },
     );
     log(res.toString());
     setState(() {
@@ -77,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 maxLength: 6,
-                controller: phoneController,
+                controller: mpinController,
                 keyboardType: TextInputType.phone,
                 decoration: const InputDecoration(
                   labelText: 'mpin',

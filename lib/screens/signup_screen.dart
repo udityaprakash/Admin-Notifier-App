@@ -48,7 +48,7 @@ class _SignupScreenState extends State<SignupScreen> {
     showAppSnackbar(context, res["message"].toString());
     if (res["error"] == false) {
       await StorageManager.saveData('phoneNumber', phoneController.text.trim());
-      await StorageManager.saveData('authToken', res['data']['authToken']);
+      // await StorageManager.saveData('authToken', res['data']['authToken']);
       context.push(Routes.home);
     }
   }
@@ -82,7 +82,7 @@ class _SignupScreenState extends State<SignupScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 maxLength: 6,
-                controller: phoneController,
+                controller: mpinController,
                 keyboardType: TextInputType.phone,
                 decoration: const InputDecoration(
                   labelText: 'mpin',
@@ -90,7 +90,12 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              _isLoading ? CircularProgressIndicator() : ElevatedButton(onPressed: onsignup, child: const Text('Signup')),
+              _isLoading
+                  ? CircularProgressIndicator()
+                  : ElevatedButton(
+                    onPressed: onsignup,
+                    child: const Text('Signup'),
+                  ),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () => context.go('/login'),
