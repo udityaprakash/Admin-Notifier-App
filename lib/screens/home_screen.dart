@@ -133,6 +133,27 @@ class _MyHomePageState extends State<MyHomePage> {
         label: Text('Send Notification'),
         backgroundColor: const Color.fromARGB(255, 114, 191, 255),
       ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: 0,
+        onTap: (index) {
+          switch (index) {
+            case 0:
+              // Home tapped, do nothing as we're on the home screen
+              break;
+            case 1:
+              context.push('/profile');
+              break;
+            case 2:
+              _logout();
+              break;
+          }
+        },
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          BottomNavigationBarItem(icon: Icon(Icons.logout), label: 'Logout'),
+        ],
+      ),
     );
   }
 
