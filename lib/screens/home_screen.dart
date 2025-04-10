@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:admin_notifier/controllers/api_service.dart';
 import 'package:admin_notifier/controllers/storage_manager.dart';
 import 'package:admin_notifier/helper_functions.dart';
+import 'package:admin_notifier/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -87,12 +88,12 @@ class _MyHomePageState extends State<MyHomePage> {
         title: const Text('Home Page'),
         actions: [
           ElevatedButton(onPressed: _logout, child: const Text('logout')),
-          ElevatedButton(
-            onPressed: () {
-              context.push('/profile');
-            },
-            child: const Text('Profile'),
-          ),
+          // ElevatedButton(
+          //   onPressed: () {
+          //     context.push('/profile');
+          //   },
+          //   child: const Text('Profile'),
+          // ),
         ],
       ),
       body: Column(
@@ -144,14 +145,17 @@ class _MyHomePageState extends State<MyHomePage> {
               context.push('/profile');
               break;
             case 2:
-              _logout();
+              context.push(Routes.pendingApproval);
               break;
           }
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-          BottomNavigationBarItem(icon: Icon(Icons.logout), label: 'Logout'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.logout),
+            label: 'Approve Users',
+          ),
         ],
       ),
     );

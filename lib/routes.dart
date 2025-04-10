@@ -1,6 +1,6 @@
-
 import 'package:admin_notifier/screens/home_screen.dart';
 import 'package:admin_notifier/screens/login_screen.dart';
+import 'package:admin_notifier/screens/pending_approval_screen.dart';
 import 'package:admin_notifier/screens/profile_screen.dart';
 import 'package:admin_notifier/screens/signup_screen.dart';
 import 'package:admin_notifier/screens/splash_screen.dart';
@@ -12,6 +12,7 @@ class Routes {
   static const String signup = '/signup';
   static const String home = '/home';
   static const String profile = '/profile';
+  static const String pendingApproval = '/pendingapproval';
 
   final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -22,14 +23,15 @@ class Routes {
         path: '/signup',
         builder: (context, state) => const SignupScreen(),
       ),
+      GoRoute(path: '/home', builder: (context, state) => const MyHomePage()),
       GoRoute(
-        path: '/home', 
-        builder: (context, state) => const MyHomePage()),
-      GoRoute(
-        path:'/profile',
+        path: '/profile',
         builder: (context, state) => const ProfileScreen(),
-      ),  
+      ),
+      GoRoute(
+        path: '/pendingapproval',
+        builder: (context, state) => const PendingApprovalScreen(),
+      ),
     ],
   );
 }
-  
