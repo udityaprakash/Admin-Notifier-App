@@ -87,6 +87,12 @@ class _MyHomePageState extends State<MyHomePage> {
         title: const Text('Home Page'),
         actions: [
           ElevatedButton(onPressed: _logout, child: const Text('logout')),
+          ElevatedButton(
+            onPressed: () {
+              context.push('/profile');
+            },
+            child: const Text('Profile'),
+          ),
         ],
       ),
       body: Column(
@@ -121,6 +127,11 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {},
+        label: Text('Send Notification'),
+        backgroundColor: const Color.fromARGB(255, 114, 191, 255),
       ),
     );
   }

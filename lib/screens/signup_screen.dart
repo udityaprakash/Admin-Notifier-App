@@ -49,7 +49,7 @@ class _SignupScreenState extends State<SignupScreen> {
     if (res["error"] == false) {
       await StorageManager.saveData('phoneNumber', phoneController.text.trim());
       // await StorageManager.saveData('authToken', res['data']['authToken']);
-      context.push(Routes.home);
+      context.push(Routes.login);
     }
   }
 
