@@ -81,6 +81,15 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  Future<void> refreshMessages() async {
+    setState(() {
+      currentPage = 1;
+      messages.clear();
+      hasMore = true;
+    });
+    await fetchMessages();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,49 +97,48 @@ class _MyHomePageState extends State<MyHomePage> {
         title: const Text('Home Page'),
         actions: [
           ElevatedButton(onPressed: _logout, child: const Text('logout')),
-          // ElevatedButton(
-          //   onPressed: () {
-          //     context.push('/profile');
-          //   },
-          //   child: const Text('Profile'),
-          // ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child:
-                (!isLoading && messages.isEmpty)
-                    ? Center(
-                      child: Text(
-                        'No Notifications available',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+      body: RefreshIndicator(
+        onRefresh: refreshMessages,
+        child: Column(
+          children: [
+            Expanded(
+              child:
+                  (!isLoading && messages.isEmpty)
+                      ? Center(
+                        child: Text(
+                          'No Notifications available',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
+                      )
+                      : ListView.builder(
+                        controller: _scrollController,
+                        itemCount: messages.length + (isLoading ? 1 : 0),
+                        itemBuilder: (context, index) {
+                          if (index < messages.length) {
+                            return buildMessageCard(messages[index]);
+                          } else {
+                            return const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: CircularProgressIndicator(),
+                              ),
+                            );
+                          }
+                        },
                       ),
-                    )
-                    : ListView.builder(
-                      controller: _scrollController,
-                      itemCount: messages.length + (isLoading ? 1 : 0),
-                      itemBuilder: (context, index) {
-                        if (index < messages.length) {
-                          return buildMessageCard(messages[index]);
-                        } else {
-                          return const Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(16.0),
-                              child: CircularProgressIndicator(),
-                            ),
-                          );
-                        }
-                      },
-                    ),
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: () {
+          context.push(Routes.sendNotification);
+        },
         label: Text('Send Notification'),
         backgroundColor: const Color.fromARGB(255, 114, 191, 255),
       ),
