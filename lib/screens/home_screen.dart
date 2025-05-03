@@ -5,6 +5,8 @@ import 'package:admin_notifier/helper_functions.dart';
 import 'package:admin_notifier/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
+import 'package:intl/intl.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -65,11 +67,17 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget buildMessageCard(Map message) {
+    final rawTimestamp = message['createdAt'];
+    final parsedDateTime = DateTime.parse(rawTimestamp).toLocal();
+    final formattedDate = DateFormat(
+      'dd MMM yyyy, hh:mm a',
+    ).format(parsedDateTime);
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
-        title: const Text(
-          'Notification',
+        title: Text(
+          formattedDate,
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Text(
@@ -81,7 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Future<void> refreshMessages() async {
+  Future<void> _refreshMessages() async {
     setState(() {
       currentPage = 1;
       messages.clear();
@@ -99,24 +107,26 @@ class _MyHomePageState extends State<MyHomePage> {
           ElevatedButton(onPressed: _logout, child: const Text('logout')),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: refreshMessages,
-        child: Column(
-          children: [
-            Expanded(
-              child:
-                  (!isLoading && messages.isEmpty)
-                      ? Center(
-                        child: Text(
-                          'No Notifications available',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
+      body: Column(
+        children: [
+          Expanded(
+            child:
+                (!isLoading && messages.isEmpty)
+                    ? Center(
+                      child: Text(
+                        'No Notifications available',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
                         ),
-                      )
-                      : ListView.builder(
+                      ),
+                    )
+                    : LiquidPullToRefresh(
+                      showChildOpacityTransition: false,
+                      onRefresh: _refreshMessages,
+                      child: ListView.builder(
                         controller: _scrollController,
+                        physics: const AlwaysScrollableScrollPhysics(),
                         itemCount: messages.length + (isLoading ? 1 : 0),
                         itemBuilder: (context, index) {
                           if (index < messages.length) {
@@ -131,9 +141,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           }
                         },
                       ),
-            ),
-          ],
-        ),
+                    ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
