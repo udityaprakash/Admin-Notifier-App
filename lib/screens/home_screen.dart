@@ -102,7 +102,13 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home Page'),
+        leading: InkWell(
+          child: const Icon(Icons.person_3_rounded),
+          onTap: () {
+            context.push(Routes.profile);
+          },
+        ),
+        title: const Text('Admin Notifier'),
         actions: [
           ElevatedButton(onPressed: _logout, child: const Text('logout')),
         ],
@@ -160,20 +166,27 @@ class _MyHomePageState extends State<MyHomePage> {
               // Home tapped, do nothing as we're on the home screen
               break;
             case 1:
-              context.push('/profile');
-              break;
-            case 2:
               context.push(Routes.pendingApproval);
               break;
+            case 2:
+              context.push(Routes.registeredUsers);
+              break;
+            // case 3:
+            //   context.push('/profile');
+            //   break;
           }
         },
-        items: const [
+        items: [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
           BottomNavigationBarItem(
             icon: Icon(Icons.logout),
-            label: 'Approve Users',
+            label: 'Pending Approval',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people),
+            label: 'Registered Users',
+          ),
+          // BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
     );

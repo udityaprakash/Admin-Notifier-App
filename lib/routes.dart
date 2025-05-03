@@ -2,6 +2,7 @@ import 'package:admin_notifier/screens/home_screen.dart';
 import 'package:admin_notifier/screens/login_screen.dart';
 import 'package:admin_notifier/screens/pending_approval_screen.dart';
 import 'package:admin_notifier/screens/profile_screen.dart';
+import 'package:admin_notifier/screens/registered_user_screen.dart';
 import 'package:admin_notifier/screens/send_notification_screen.dart';
 import 'package:admin_notifier/screens/signup_screen.dart';
 import 'package:admin_notifier/screens/splash_screen.dart';
@@ -15,6 +16,7 @@ class Routes {
   static const String profile = '/profile';
   static const String pendingApproval = '/pendingapproval';
   static const String sendNotification = '/sendnotification';
+  static const String registeredUsers = '/registeredUsers';
 
   final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -37,6 +39,10 @@ class Routes {
       GoRoute(
         path: '/sendnotification',
         builder: (context, state) => const SendNotificationScreen(),
+      ),
+      GoRoute(
+        path: '/registeredUsers',
+        builder: (context, state) => const RegisteredPeoples(),
       ),
     ],
   );
