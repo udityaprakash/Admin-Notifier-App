@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:admin_notifier/controllers/api_service.dart';
 import 'package:admin_notifier/helper_functions.dart';
+import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 
 class SendNotificationScreen extends StatefulWidget {
@@ -40,8 +41,13 @@ class _SendNotificationScreenState extends State<SendNotificationScreen> {
   }
 
   Future<List<String>?> _sendNotificationToSelectedUsers() async {
-    dynamic users = await sendNotificationToSelectedUsers(context);
+    dynamic users = await sendNotificationToSelectedUsers(
+      context,
+      _messageController,
+    );
     log('Selected users: $users');
+    // Navigator.pop();
+    context.pop(true);
   }
 
   @override
@@ -81,7 +87,7 @@ class _SendNotificationScreenState extends State<SendNotificationScreen> {
                       label:
                           isSending
                               ? const CircularProgressIndicator()
-                              : const Text('Send to selected users'),
+                              : const Text('Send Message'),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 24,
@@ -89,21 +95,21 @@ class _SendNotificationScreenState extends State<SendNotificationScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 10),
-                    ElevatedButton.icon(
-                      onPressed: isSending ? null : _sendNotification,
-                      icon: const Icon(Icons.send),
-                      label:
-                          isSending
-                              ? const CircularProgressIndicator()
-                              : const Text('Send Notification to All'),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
-                      ),
-                    ),
+                    // SizedBox(height: 10),
+                    // ElevatedButton.icon(
+                    //   onPressed: isSending ? null : _sendNotification,
+                    //   icon: const Icon(Icons.send),
+                    //   label:
+                    //       isSending
+                    //           ? const CircularProgressIndicator()
+                    //           : const Text('Send Notification to All'),
+                    //   style: ElevatedButton.styleFrom(
+                    //     padding: const EdgeInsets.symmetric(
+                    //       horizontal: 24,
+                    //       vertical: 12,
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
@@ -121,10 +127,10 @@ class _SendNotificationScreenState extends State<SendNotificationScreen> {
   }
 }
 
-Future<dynamic> sendNotificationToSelectedUsers(context) async {
+Future<dynamic> sendNotificationToSelectedUsers(context, msg) async {
   final response = await ApiService().post(
     '/allpeople',
-    body: {}, // or any required body
+    body: {},
     includeTokenInHeader: true,
   );
 
@@ -135,6 +141,7 @@ Future<dynamic> sendNotificationToSelectedUsers(context) async {
 
   List<dynamic> users = response['data'];
   List<String> selectedIds = [];
+  bool selectAll = false;
 
   await showDialog(
     context: context,
@@ -142,46 +149,105 @@ Future<dynamic> sendNotificationToSelectedUsers(context) async {
       return StatefulBuilder(
         builder: (context, setState) {
           return AlertDialog(
-            title: const Text('Select Users'),
+            title: const Text('Peoples to Send'),
             content: SizedBox(
               width: double.maxFinite,
               height: 300,
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: users.length,
-                itemBuilder: (context, index) {
-                  final user = users[index];
-                  final userId = user['_id'];
-                  final userName =
-                      user['registeredName'] ?? user['name'] ?? 'Unknown';
-
-                  return CheckboxListTile(
-                    title: Text(userName),
-                    value: selectedIds.contains(userId),
-                    onChanged: (bool? selected) {
+              child: Column(
+                children: [
+                  CheckboxListTile(
+                    title: const Text('Select All'),
+                    value: selectAll,
+                    onChanged: (bool? value) {
                       setState(() {
-                        if (selected == true) {
-                          selectedIds.add(userId);
+                        selectAll = value ?? false;
+                        if (selectAll) {
+                          selectedIds =
+                              users.map((u) => u['_id'].toString()).toList();
                         } else {
-                          selectedIds.remove(userId);
+                          selectedIds.clear();
                         }
                       });
                     },
-                  );
-                },
+                  ),
+                  const Divider(),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: users.length,
+                      itemBuilder: (context, index) {
+                        final user = users[index];
+                        final userId = user['_id'].toString();
+                        final userName =
+                            user['registeredName'] ?? user['name'] ?? 'Unknown';
+
+                        return CheckboxListTile(
+                          title: Text(userName),
+                          value: selectedIds.contains(userId),
+                          onChanged: (bool? selected) {
+                            setState(() {
+                              if (selected == true) {
+                                selectedIds.add(userId);
+                              } else {
+                                selectedIds.remove(userId);
+                              }
+                              if (selectedIds.length == users.length) {
+                                selectAll = true;
+                              } else {
+                                selectAll = false;
+                              }
+                            });
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
             actions: [
               TextButton(
-                onPressed: () {
-                  Navigator.of(dialogContext).pop(selectedIds);
-                  log('Selected IDs: $selectedIds');
-                  // return selectedIds; // Return selected IDs
-                  // ✅ Use parent context here, not dialog context
-                  // showAppSnackbar(
-                  //   context,
-                  //   'Selected ${selectedIds.length} user(s)',
-                  // );
+                onPressed: () async {
+                  if (selectedIds.isEmpty && !selectAll) {
+                    // showAppSnackbar(context, 'Please select at least one user');
+                    return;
+                  }
+
+                  if (msg.text.trim().isEmpty) {
+                    // showAppSnackbar(context, 'Message cannot be empty');
+                    return;
+                  }
+                  // Navigator.of(dialogContext).pop(selectedIds);
+                  if (selectAll) {
+                    await ApiService()
+                        .post(
+                          '/sendNotificationToAll',
+                          body: {"message": msg.text},
+                          includeTokenInHeader: true,
+                        )
+                        .then((response) {
+                          log(response.toString());
+                          // showAppSnackbar(
+                          //   context,
+                          //   response['message'] ?? 'Notification sent',
+                          // );
+                        });
+                  } else {
+                    await ApiService()
+                        .post(
+                          '/sendNotificationToSelected',
+                          body: {"message": msg.text, "userIds": selectedIds},
+                          includeTokenInHeader: true,
+                        )
+                        .then((response) {
+                          log(response.toString());
+                          // showAppSnackbar(
+                          //   context,
+                          //   response['message'] ?? 'Notification sent',
+                          // );
+                        });
+                  }
+                  Navigator.of(dialogContext).pop(true);
+                  // context.pop(true);
                 },
                 child: const Text('Send Notification'),
               ),
@@ -191,5 +257,4 @@ Future<dynamic> sendNotificationToSelectedUsers(context) async {
       );
     },
   );
-  ;
 }

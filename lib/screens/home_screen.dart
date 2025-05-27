@@ -80,6 +80,22 @@ class _MyHomePageState extends State<MyHomePage> {
           formattedDate,
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              message['sendToAll'] == true ? Icons.groups : Icons.person,
+              color: message['sendToAll'] == true ? Colors.blue : Colors.green,
+            ),
+            Text(
+              message['sendTo'].length > 0 ? '${message['sendTo'].length}' : '',
+              style: TextStyle(
+                color:
+                    message['sendToAll'] == true ? Colors.blue : Colors.green,
+              ),
+            ),
+          ],
+        ),
         subtitle: Text(
           message['message'] ?? '',
           maxLines: 2,
@@ -152,8 +168,17 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          context.push(Routes.sendNotification);
+        onPressed: () async {
+          final res = await context.push(Routes.sendNotification);
+          // log("received from previous screen : " + res.toString());
+          if (res == true) {
+            setState(() {
+              currentPage = 1;
+              messages.clear();
+              hasMore = true;
+            });
+            fetchMessages();
+          }
         },
         label: Text('Send Notification'),
         backgroundColor: const Color.fromARGB(255, 114, 191, 255),
